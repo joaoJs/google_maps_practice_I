@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+    </style>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+      integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <h3>My Google Maps Demo</h3>
+    <h2> Enter Location: </h2>
+    <form id="locationForm">
+      <input type="text" id="locationInput"
+        class="form-control form-control-lg">
+    </form>
+    <div class="card-block" id="address"></div>
+    <div class="card-block" id="comp"></div>
+    <div class="card-block" id="geo"></div>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var miami = {lat: 25.7617, lng: -80.1918};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: miami
+        });
+        var marker = new google.maps.Marker({
+          position: miami,
+          map: map
+        });
+      }
+
+      geocode();
+
+      function geocode() {
+        var location = '6001 SW 70th street miami FL';
+        axios.get('https://maps.googleapis.com/maps/api/geocode/json',{
+          params: {
+            address: location,
+            key: 'AIzaSyBZmlw9qWUNZvc1jbUEZ8HQXHGTHXe3Jm4'
+          }
+        })
+        .then((response) => {
+          //console.log("Form ---> ", response.data.results[0].formatted_address);
+          console.log("Response ----> ", response);
+          const address = response.data.results[0].formatted_address;
+          const adOut = `
+            <ul class="group-item">
+              <li class="list-group-item">
+                ${address}
+              </li>
+            </ul>
+          `;
+
+          document.getElementById("address").innerHTML = adOut;
+
+          const components = response.data.results[0].address_components;
+          let compOut = `<ul class="group-item">`
+          components.forEach(c => {
+            compOut +=
+              `<li class="list-group-item">
+                ${c.types[0]}: ${c.long_name}
+              </li>`
+          });
+          compOut +=  `</ul>`;
+
+          document.getElementById("comp").innerHTML = compOut;
+
+          const lat = response.data.results[0].geometry.location.lat;
+          const lng = response.data.results[0].geometry.location.lng;
+
+          document.getElementById("geo").innerHTML = lat + ', ' + lng;
+
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZmlw9qWUNZvc1jbUEZ8HQXHGTHXe3Jm4&callback=initMap">
+    </script>
+  </body>
+</html>
