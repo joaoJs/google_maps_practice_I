@@ -13,15 +13,19 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   </head>
   <body>
+    <div class="container">
     <h3>My Google Maps Demo</h3>
     <h2> Enter Location: </h2>
     <form id="locationForm">
       <input type="text" id="locationInput"
         class="form-control form-control-lg">
+      <br>
+      <button class="btn btn-primary btn-block"> Submit </button>
     </form>
     <div class="card-block" id="address"></div>
     <div class="card-block" id="comp"></div>
     <div class="card-block" id="geo"></div>
+    </div>
     <div id="map"></div>
     <script>
       function initMap() {
@@ -34,55 +38,73 @@
           position: miami,
           map: map
         });
-      }
 
-      geocode();
+        const locationForm = document.getElementById("locationForm");
+        locationForm.addEventListener('submit', geocode);
 
-      function geocode() {
-        var location = '6001 SW 70th street miami FL';
-        axios.get('https://maps.googleapis.com/maps/api/geocode/json',{
-          params: {
-            address: location,
-            key: 'AIzaSyBZmlw9qWUNZvc1jbUEZ8HQXHGTHXe3Jm4'
-          }
-        })
-        .then((response) => {
-          //console.log("Form ---> ", response.data.results[0].formatted_address);
-          console.log("Response ----> ", response);
-          const address = response.data.results[0].formatted_address;
-          const adOut = `
-            <ul class="group-item">
-              <li class="list-group-item">
-                ${address}
-              </li>
-            </ul>
-          `;
+        function geocode(e) {
+          e.preventDefault();
+          //var location = '6001 SW 70th street miami FL';
+          var location = document.getElementById('locationInput').value;
+          axios.get('https://maps.googleapis.com/maps/api/geocode/json',{
+            params: {
+              address: location,
+              key: 'AIzaSyBZmlw9qWUNZvc1jbUEZ8HQXHGTHXe3Jm4'
+            }
+          })
+          .then((response) => {
+            //console.log("Form ---> ", response.data.results[0].formatted_address);
+            console.log("Response ----> ", response);
+            const address = response.data.results[0].formatted_address;
+            const adOut = `
+              <ul class="group-item">
+                <li class="list-group-item">
+                  ${address}
+                </li>
+              </ul>
+            `;
 
-          document.getElementById("address").innerHTML = adOut;
+            document.getElementById("address").innerHTML = adOut;
 
-          const components = response.data.results[0].address_components;
-          let compOut = `<ul class="group-item">`
-          components.forEach(c => {
-            compOut +=
-              `<li class="list-group-item">
-                ${c.types[0]}: ${c.long_name}
-              </li>`
+            const components = response.data.results[0].address_components;
+            let compOut = `<ul class="group-item">`
+            components.forEach(c => {
+              compOut +=
+                `<li class="list-group-item">
+                  ${c.types[0]}: ${c.long_name}
+                </li>`
+            });
+            compOut +=  `</ul>`;
+
+            document.getElementById("comp").innerHTML = compOut;
+
+            const lat = response.data.results[0].geometry.location.lat;
+            const lng = response.data.results[0].geometry.location.lng;
+
+            document.getElementById("geo").innerHTML = lat + ', ' + lng;
+
+            map.setCenter({ lat: lat, lng: lng});
+            marker.setPosition({ lat: lat, lng: lng});
+            //miami = {lat: lat, lng: lng};
+            //initMap();
+            // map.center.lat = lat;
+            // map.center.lng = lng;
+            //
+            // marker.position.lat = lat;
+            // marker.position.lng = lng;
+
+          })
+          .catch((err) => {
+            console.log(err);
           });
-          compOut +=  `</ul>`;
 
-          document.getElementById("comp").innerHTML = compOut;
-
-          const lat = response.data.results[0].geometry.location.lat;
-          const lng = response.data.results[0].geometry.location.lng;
-
-          document.getElementById("geo").innerHTML = lat + ', ' + lng;
-
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        }
 
       }
+
+      //geocode();
+
+
     </script>
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBZmlw9qWUNZvc1jbUEZ8HQXHGTHXe3Jm4&callback=initMap">
