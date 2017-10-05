@@ -162,7 +162,31 @@
 
         }
 
+        //distance();
+
+
+        function distance() {
+
+          axios.get('https://maps.googleapis.com/maps/api/distancematrix/json',{
+            params: {
+              units: 'imperial',
+              origins: '25.7810171,-80.19628360000002',
+              destinations: '25.8011729,-80.20023049999999'  ,
+              key: 'AIzaSyBZmlw9qWUNZvc1jbUEZ8HQXHGTHXe3Jm4'
+            }
+          })
+          .then((response) => {
+            console.log('DISTANCE!! ---> ', response);
+          })
+          .catch((err) => {
+            console.log('ERR --> ', err);
+          });
+        }
+
       }
+
+      //{lat: 25.7810171, lng: -80.19628360000002},
+      //{lat: 25.8011729, lng: -80.20023049999999},
 
       //geocode();
 
